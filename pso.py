@@ -4,23 +4,23 @@ from matplotlib import pyplot as plt
 class Particle():
     """Represents a particle"""
     dimensions = 2
-    gbest_pos = [4.9999999] * dimensions
+    gbest_pos = [1000] * dimensions
     # Inertial weight
-    weight = 1 
+    weight = 0.8 
     # Social and cognitive coefficients.
     # Cognitive makes a particle care more about its own findings
     # Social makes a particle care more about the swarm's findings
     social_coefficient = 1.5 
     cognitive_coefficient = 1.5
     # Upper and lower bounds of the problem
-    upper_bound = 5.0 
-    lower_bound = -5.0
+    upper_bound = 5
+    lower_bound = -5
 
     @classmethod
     def reset_dimensions(cls, dimensions):
         """Reset the dimensions and gbest_pos"""
         cls.dimensions = dimensions
-        cls.gbest_pos = [4.999999] * dimensions
+        cls.gbest_pos = [9999] * dimensions
 
     @classmethod
     def decrement_weight(cls):
@@ -64,16 +64,6 @@ class Particle():
     def update_position(self) -> None:
         """Set the particle's position based on current position and velocity"""
         self.position = self.position + self.velocity
-        self.constrain_position()
-
-    def constrain_position(self) -> None:
-        """Constrains the position to be within bounds"""
-        for d in range(len(self.position)):
-            if self.position[d] > Particle.upper_bound:
-                self.position[d] = Particle.upper_bound
-                continue
-            if self.position[d] < Particle.lower_bound:
-                self.position[d] = Particle.upper_bound
 
     def update_pbest_pos(self) -> bool:
         """Update particle's best known pos with its current position, if its better. Returns True/false if updated/not."""
@@ -103,28 +93,34 @@ class Particle():
             # Set velocity in given dimension
             final_velocity = inertial_velocity + p_const * dist_pbest + g_const * dist_gbest 
             self.velocity[d] = final_velocity
-            self.constrain_velocity()
 
-    def constrain_velocity(self):
-        """Constrains the velocity to be within bounds"""
+    def enforce_bounds(self) -> None:
+        """When the position is outside of bounds, it is set in bounds. When a velocity is outside, it is set to 0"""
+        for d in range(len(self.position)):
+            if self.position[d] > Particle.upper_bound:
+                self.position[d] = Particle.upper_bound
+                continue
+            if self.position[d] < Particle.lower_bound:
+                self.position[d] = Particle.upper_bound
         for d in range(len(self.velocity)):
             if self.velocity[d] > Particle.upper_bound:
-                self.velocity[d] = Particle.upper_bound
+                self.velocity[d] = 0
                 continue
             if self.velocity[d] < Particle.lower_bound:
-                self.velocity[d] = Particle.upper_bound
+                self.velocity[d] = 0
 
     def search(self):
         """A single particle's search for minimum"""
         self.update_velocity()
         self.update_position()
+        self.enforce_bounds()
         if self.update_pbest_pos():
             self.update_gbest_pos()
 
 def particle_swarm_optimization():
-    num_particles = 5
+    num_particles = 50
     particles = [Particle()] * num_particles
-    i = 5
+    i = 500
     while i > 0:
         for particle in particles:
             print(particle)
