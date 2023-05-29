@@ -1,33 +1,33 @@
 import numpy as np 
-import sys
-from math import sqrt, cos, exp, pi, e
-
+from matplotlib import pyplot as plt
 
 class Particle():
     """Represents a particle"""
     dimensions = 2
-    gbest_pos = [sys.maxsize] * dimensions
+    gbest_pos = [4.9999999] * dimensions
     # Inertial weight
-    weight = 0.5 
+    weight = 1 
 
     @classmethod
     def reset_dimensions(cls, dimensions):
         """Reset the dimensions and gbest_pos"""
         cls.dimensions = dimensions
-        cls.gbest_pos = [sys.maxsize] * dimensions
+        cls.gbest_pos = [4.999999] * dimensions
 
     @classmethod
-    def set_weight(cls, weight):
-        """Set the weight/inertia of all particles"""
-        cls.weight = weight
+    def decrement_weight(cls):
+        """Decrement the weight/inertia of all particles"""
+        if cls.weight > 0.3:
+            cls.weight = cls.weight - 0.01
 
     @classmethod
     def fitness(cls, position):
         """Ackley"""
         x = position[0]
         y = position[1]
-        return -20.0 * exp(-0.2 * sqrt(0.5 * (x**2 + y**2)))-exp(0.5 * (cos(2 * 
-          pi * x)+cos(2 * pi * y))) + e + 20
+        return x**2 + y**2
+        #return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
+          # np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
 
     def __init__(self, lower_bound, upper_bound, social_coefficient, cognitive_coefficient) -> None:
         # Set position. Makes vector with dimensions Particle.dimensions
@@ -65,20 +65,20 @@ class Particle():
 
     def update_velocity(self) -> None: 
         """Update the particle's velocity in each dimension"""
-        for d in range(1, len(self.velocity)+1):
+        for d in range(len(self.velocity)):
             # Inertia * velocity
-            inertial_velocity =  Particle.weight * self.velocity[d-1]
+            inertial_velocity =  Particle.weight * self.velocity[d]
             # Find distance to personal best pos 
-            dist_pbest = self.pbest_pos[d-1] - self.position[d-1]
+            dist_pbest = self.pbest_pos[d] - self.position[d]
             # Find distance to global best pos
-            dist_gbest = Particle.gbest_pos[d-1] - self.position[d-1]
+            dist_gbest = Particle.gbest_pos[d] - self.position[d]
             # Set cognitive constant
             p_const = self.cognitive_coefficient * np.random.uniform(low=0, high=1)
             # Set the social constant
             g_const = self.social_coefficient * np.random.uniform(low=0, high=1)
             # Set velocity in given dimension
             final_velocity = inertial_velocity + p_const * dist_pbest + g_const * dist_gbest 
-            self.velocity[d-1] = final_velocity
+            self.velocity[d] = final_velocity
 
     def search(self):
         """A single particle's search for minimum"""
@@ -86,16 +86,21 @@ class Particle():
         self.update_position()
         if self.update_pbest_pos():
             self.update_gbest_pos()
+
+
         
 
 def particle_swarm_optimization():
     num_particles = 500
+    print(Particle.fitness([0,1]))
     particles = [Particle(lower_bound=-5, upper_bound=5,
-                          social_coefficient=1.5, cognitive_coefficient=1.5)] * num_particles
-    i = 500
+                          social_coefficient=3.5, cognitive_coefficient=1.5)] * num_particles
+    i = 1
     while i > 0:
         for particle in particles:
+            print(particle)
             particle.search()
+        Particle.decrement_weight()
         i -= 1
     print(Particle.gbest_pos)
 
