@@ -1,5 +1,6 @@
 import numpy as np 
 from matplotlib import pyplot as plt
+from ipywidgets import interact
 
 class Particle():
     """Represents a particle"""
@@ -131,6 +132,18 @@ class Particle():
                 return Particle.within_target_error()
         return False
 
+# Scatterplot code from https://towardsdatascience.com/swarm-intelligence-coding-and-visualising-particle-swarm-optimisation-in-python-253e1bd00772
+fig = plt.figure(figsize=(10, 10))
+ax = fig.add_subplot(111, projection='3d')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+x = np.linspace(Particle.lower_bound, Particle.upper_bound, 80)
+y = np.linspace(Particle.lower_bound, Particle.upper_bound, 80)
+X, Y = np.meshgrid(x, y)
+Z= Particle.fitness([X,Y])
+ax.plot_wireframe(X, Y, Z, color='r', linewidth=0.2)
+
 def particle_swarm_optimization():
     Particle.setup(social=1.2, cognitive=1.5, dimensions=2, upper=1.0, lower=-1.0, target=[0,0], error=1e-6)
     num_particles = 500
@@ -138,20 +151,39 @@ def particle_swarm_optimization():
     found_target = False
     i = 0
     iterations = 50
+
     while found_target == False and i < iterations:
         for particle in particles:
             found_target = particle.search()
             print(particle)
             print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
-        #Particle.decrement_weight()
+        Particle.decrement_weight()
+        i += 1
+    print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
+
+def visualize_pso():
+    Particle.setup(social=1.2, cognitive=1.5, dimensions=2, upper=1.0, lower=-1.0, target=[0,0], error=1e-6)
+    num_particles = 500
+    particles = [Particle()] * num_particles
+    found_target = False
+    i = 0
+    iterations = 50
+
+    while found_target == False and i < iterations:
+        for particle in particles:
+            found_target = particle.search()
+        # Scatterplot code from https://towardsdatascience.com/swarm-intelligence-coding-and-visualising-particle-swarm-optimisation-in-python-253e1bd00772
+        interact(ax.scatter3D([particles[n].position[0] for n in range(len(particles))],
+                             [particles[n].position[1] for n in range(len(particles))],
+                             [Particle.fitness(particles[n].position) for n in range(len(particles))], c="b"))
+        plt.ion()
+        Particle.decrement_weight()
         i += 1
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
 
 
-
-
 def main():
-    particle_swarm_optimization()
+    visualize_pso()
 
 if __name__ == "__main__":
     main()
