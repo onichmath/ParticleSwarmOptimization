@@ -92,7 +92,7 @@ class Particle():
 
     def update_velocity(self) -> None: 
         """Update the particle's velocity in each dimension"""
-        for d in range(len(self.velocity)):
+        for d in range(len(self.position)):
             # Inertia * velocity
             inertial_velocity =  Particle.weight * self.velocity[d]
             # Find distance to personal best pos 
@@ -100,9 +100,9 @@ class Particle():
             # Find distance to global best pos
             dist_gbest = Particle.gbest_pos[d] - self.position[d]
             # Set cognitive constant
-            p_const = Particle.cognitive_coefficient * np.random.uniform(low=0.001, high=1)
+            p_const = Particle.cognitive_coefficient * np.random.uniform(low=0, high=1)
             # Set the social constant
-            g_const = Particle.social_coefficient * np.random.uniform(low=0.001, high=1)
+            g_const = Particle.social_coefficient * np.random.uniform(low=0, high=1)
             # Set velocity in given dimension
             final_velocity = inertial_velocity + p_const * dist_pbest + g_const * dist_gbest 
             self.velocity[d] = final_velocity
@@ -112,14 +112,11 @@ class Particle():
         for d in range(len(self.position)):
             if self.position[d] > Particle.upper_bound:
                 self.position[d] = Particle.upper_bound - (self.position[d] / 1000)
-                continue
-            if self.position[d] < Particle.lower_bound:
-                self.position[d] = Particle.lower_bound + (self.position[d] / 1000)
-        for d in range(len(self.velocity)):
+            elif self.position[d] < Particle.lower_bound:
+                self.position[d] = Particle.lower_bound - (self.position[d] / 1000)
             if self.velocity[d] > Particle.upper_bound:
                 self.velocity[d] = 0 
-                continue
-            if self.velocity[d] < Particle.lower_bound:
+            elif self.velocity[d] < Particle.lower_bound:
                 self.velocity[d] = 0 
 
     def search(self) -> bool:
@@ -149,27 +146,30 @@ def setup_plot():
     return fig
     
     
-def particle_swarm_optimization(social=1.5, cognitive=1.5):
-    Particle.setup(social=social, cognitive=cognitive, dimensions=2, upper=5.0, lower=-5.0, target=[0,0], error=1e-6)
-    num_particles = 5
-    particles = [Particle()] * num_particles
+def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weight=True, n_particles=5, iterations=50):
+    # Swarm Setup
+    Particle.setup(social=social, cognitive=cognitive, weight=weight, dimensions=2, upper=5.0, lower=-5.0, target=[0,0], error=1e-6)
+    particles = [Particle()] * n_particles
     found_target = False
-    i = 0
-    iterations = 50
+    # Matplotlib setup call
     fig = setup_plot()
     artists = []
     plt.ioff()
 
+    i = 0
     while found_target == False and i < iterations:
         for particle in particles:
             found_target = particle.search()
-        Particle.decrement_weight()
+        if dec_weight == True:
+            Particle.decrement_weight
         i += 1
-        x_positions = [particles[n].position[0] for n in range(len(particles))]
-        y_positions = [particles[n].position[1] for n in range(len(particles))]
+        # Matplotlib frames for animation
+        x_positions = [particles[n].position[0] for n in range(n_particles)]
+        y_positions = [particles[n].position[1] for n in range(n_particles)]
         frame = plt.scatter(x=x_positions,y=y_positions, c='b')
         title = plt.text(-4, 5.5, f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
         artists.append([frame, title])
+
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
     anim = animation.ArtistAnimation(fig, artists)
     plt.show()
