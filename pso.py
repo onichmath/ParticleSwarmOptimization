@@ -52,12 +52,12 @@ class Particle():
 
     @classmethod
     def fitness(cls, position):
-        """Ackley"""
+        """Ackley's function from wikipedia"""
         x = position[0]
         y = position[1]
-        return x**2 + y**2
-        # return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
-        #   np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
+        # return x**2 + y**2
+        return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
+          np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
 
     def __init__(self) -> None:
         # Set position. Makes vector with dimensions Particle.dimensions
@@ -151,26 +151,25 @@ def setup_plot():
     
     
 def particle_swarm_optimization():
-    Particle.setup(social=1.2, cognitive=1.5, dimensions=2, upper=1.0, lower=-1.0, target=[0,0], error=1e-6)
-    num_particles = 500
+    Particle.setup(social=1.2, cognitive=1.5, dimensions=2, upper=5.0, lower=-5.0, target=[0,0], error=1e-6)
+    num_particles = 50
     particles = [Particle()] * num_particles
     found_target = False
     i = 0
     iterations = 50
-    fig = setup_plot()
-    artist = []
 
     while found_target == False and i < iterations:
         for particle in particles:
             found_target = particle.search()
         Particle.decrement_weight()
         i += 1
+        fig = setup_plot()
         frame = plt.scatter([particles[n].position[0] for n in range(len(particles))],
                     [particles[n].position[1] for n in range(len(particles))], c='b')
-        artist.append(frame)
+        plt.title(f"PSO Iteration {i}")
+        plt.show()
 
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
-    ani = animation.ArtistAnimation(fig, artist)
 
 
 def main():
