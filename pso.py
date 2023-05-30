@@ -129,8 +129,9 @@ class Particle():
                 return Particle.within_target_error()
         return False
 
-def setup_plot():
-    """Based off of https://machinelearningmastery.com/a-gentle-introduction-to-particle-swarm-optimization/"""
+def setup_plot(type3d:bool=True):
+    """Based off of https://machinelearningmastery.com/a-gentle-introduction-to-particle-swarm-optimization/
+    and https://towardsdatascience.com/swarm-intelligence-coding-and-visualising-particle-swarm-optimisation-in-python-253e1bd00772"""
     l = Particle.lower_bound
     u = Particle.upper_bound
     x, y = np.array(np.meshgrid(np.linspace(l,u,100), np.linspace(l,u,100)))
@@ -138,21 +139,32 @@ def setup_plot():
     x_min = x.ravel()[z.argmin()]
     y_min = y.ravel()[z.argmin()]
     fig =plt.figure(figsize=(8,6))
-    plt.imshow(z, extent=[l, u, l, u], origin='lower', cmap='viridis', alpha=0.5)
-    plt.colorbar()
-    plt.plot([x_min], [y_min], marker='x', markersize=5, color="white")
-    contours = plt.contour(x, y, z, 10, colors='black', alpha=0.4)
-    plt.clabel(contours, inline=True, fontsize=8, fmt="%.0f")
-    return fig
+    if type3d:
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot([x_min], [y_min], marker='x', markersize=5, color="white")
+        ax.plot_wireframe(x,y,z, color='red', rcount=100, ccount=100, linewidth=0.2)
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+        return fig, ax
+    else:
+        plt.imshow(z, extent=[l, u, l, u], origin='lower', cmap='viridis', alpha=0.5)
+        plt.colorbar()
+        contours = plt.contour(x, y, z, 10, colors='black', alpha=0.4)
+        plt.clabel(contours, inline=True, fontsize=8, fmt="%.0f")
+        return fig
+zip() 
     
-    
-def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weight=True, n_particles=5, iterations=50):
+def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weight=True, n_particles=5, iterations=50, type3d:bool=True):
     # Swarm Setup
     Particle.setup(social=social, cognitive=cognitive, weight=weight, dimensions=2, upper=5.0, lower=-5.0, target=[0,0], error=1e-6)
     particles = [Particle()] * n_particles
     found_target = False
     # Matplotlib setup call
-    fig = setup_plot()
+    if type3d:
+        fig, ax = setup_plot(type3d=True)
+    else:
+        fig = setup_plot(type3d=False)
     artists = []
     plt.ioff()
 
@@ -166,8 +178,13 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weigh
         # Matplotlib frames for animation
         x_positions = [particles[n].position[0] for n in range(n_particles)]
         y_positions = [particles[n].position[1] for n in range(n_particles)]
-        frame = plt.scatter(x=x_positions,y=y_positions, c='b')
-        title = plt.text(-4, 5.5, f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
+        if type3d:
+            fitness_vals = [Particle.fitness([particles[n].position[0], particles[n].position[1]]) for n in range(n_particles)]
+            frame = ax.scatter3D(x_positions,y_positions, fitness_vals, c='b')
+            title = ax.text(x=-4, y=4, z=20, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
+        else:
+            frame = plt.scatter(x_positions, y_positions, c='b')
+            title = plt.text(x=-4, y=5.5, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
         artists.append([frame, title])
 
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
