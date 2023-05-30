@@ -4,7 +4,6 @@ from matplotlib import pyplot as plt
 class Particle():
     """Represents a particle"""
     dimensions = 2
-    gbest_pos = [1000] * dimensions
     # Inertial weight
     weight = 0.8 
     # Social and cognitive coefficients.
@@ -15,20 +14,18 @@ class Particle():
     # Upper and lower bounds of the problem
     upper_bound = 5
     lower_bound = -5
+    # Swarm's best known position
+    gbest_pos = [upper_bound] * dimensions
+    # Target minimum values
+    target = [0,0]
 
     @classmethod
-    def within_target_error(cls, target:list, error) -> bool:
+    def within_target_error(cls, error) -> bool:
         """Returns true if gbest_pos is within the designated target error"""
         for d in range(cls.dimensions):
-            if cls.gbest_pos[d] > target[d] + error:
+            if cls.gbest_pos[d] > cls.target[d] + error:
                 return False
         return True
-
-    @classmethod
-    def reset_dimensions(cls, dimensions):
-        """Reset the dimensions and gbest_pos"""
-        cls.dimensions = dimensions
-        cls.gbest_pos = [9999] * dimensions
 
     @classmethod
     def decrement_weight(cls):
@@ -37,16 +34,16 @@ class Particle():
             cls.weight = cls.weight - 0.01
 
     @classmethod
-    def set_coefficients(cls, social, cognitive) -> None:
-        """Sets social and cognitive coefficients"""
+    def setup(cls, social:float=1.5, cognitive:float=1.5, dimensions:int=2, upper:float=5.0, lower:float=-5.0, target:list=[0,0]) -> None:
+        """Setup the swarm space"""
         cls.social_coefficient = social
         cls.cognitive_coefficient = cognitive
-
-    @classmethod
-    def set_bounds(cls, upper, lower) -> None:
-        """Sets the bounds of the problem space"""
+        cls.dimensions = dimensions
+        cls.gbest_pos = [upper] * dimensions
         cls.upper_bound = upper
         cls.lower_bound = lower
+        cls.target = target
+        assert len(cls.gbest_pos) == cls.dimensions
 
     @classmethod
     def fitness(cls, position):
@@ -110,7 +107,7 @@ class Particle():
                 self.position[d] = Particle.upper_bound
                 continue
             if self.position[d] < Particle.lower_bound:
-                self.position[d] = Particle.upper_bound
+                self.position[d] = Particle.lower_bound
         for d in range(len(self.velocity)):
             if self.velocity[d] > Particle.upper_bound:
                 self.velocity[d] = 0
@@ -127,8 +124,7 @@ class Particle():
             self.update_gbest_pos()
 
 def particle_swarm_optimization():
-    Particle.set_coefficients(social=2, cognitive=1.2)
-    Particle.set_bounds(lower=-1,upper=1)
+    Particle.setup(social=1.5, cognitive=1.5, dimensions=2, upper=5.0, lower=-5.0, target=[0,0])
     num_particles = 500
     particles = [Particle()] * num_particles
     i = 500
