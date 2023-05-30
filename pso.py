@@ -111,10 +111,10 @@ class Particle():
         """When the position is outside of bounds, it is set in bounds. When a velocity is outside, it is set to 0"""
         for d in range(len(self.position)):
             if self.position[d] > Particle.upper_bound:
-                self.position[d] = Particle.upper_bound
+                self.position[d] = Particle.upper_bound - (self.position[d] / 1000)
                 continue
             if self.position[d] < Particle.lower_bound:
-                self.position[d] = Particle.lower_bound
+                self.position[d] = Particle.lower_bound + (self.position[d] / 1000)
         for d in range(len(self.velocity)):
             if self.velocity[d] > Particle.upper_bound:
                 self.velocity[d] = 0 
@@ -149,8 +149,8 @@ def setup_plot():
     return fig
     
     
-def particle_swarm_optimization():
-    Particle.setup(social=1.2, cognitive=1.5, dimensions=2, upper=5.0, lower=-5.0, target=[0,0], error=1e-6)
+def particle_swarm_optimization(social=1.5, cognitive=1.5):
+    Particle.setup(social=social, cognitive=cognitive, dimensions=2, upper=5.0, lower=-5.0, target=[0,0], error=1e-6)
     num_particles = 5
     particles = [Particle()] * num_particles
     found_target = False
@@ -158,6 +158,7 @@ def particle_swarm_optimization():
     iterations = 50
     fig = setup_plot()
     artists = []
+    plt.ioff()
 
     while found_target == False and i < iterations:
         for particle in particles:
@@ -166,7 +167,7 @@ def particle_swarm_optimization():
         i += 1
         x_positions = [particles[n].position[0] for n in range(len(particles))]
         y_positions = [particles[n].position[1] for n in range(len(particles))]
-        frame = plt.scatter(x_positions, y_positions, c='b')
+        frame = plt.scatter(x=x_positions,y=y_positions, c='b')
         title = plt.text(-4, 5.5, f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
         artists.append([frame, title])
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
