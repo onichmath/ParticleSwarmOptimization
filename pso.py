@@ -104,7 +104,7 @@ class Particle():
             g_const = Particle.social_coefficient * np.random.uniform(low=0.001, high=1)
             # Set velocity in given dimension
             final_velocity = inertial_velocity + p_const * dist_pbest + g_const * dist_gbest 
-            self.velocity[d] = np.float64(final_velocity)
+            self.velocity[d] = final_velocity
 
     def enforce_bounds(self) -> None:
         """When the position is outside of bounds, it is set in bounds. When a velocity is outside, it is set to 0"""
@@ -132,15 +132,17 @@ class Particle():
         return False
 
 def particle_swarm_optimization():
-    Particle.setup(social=1.5, cognitive=1.5, dimensions=2, upper=1.0, lower=-1.0, target=[0,0], error=1e-6)
+    Particle.setup(social=1.2, cognitive=1.5, dimensions=2, upper=1.0, lower=-1.0, target=[0,0], error=1e-6)
     num_particles = 500
     particles = [Particle()] * num_particles
     found_target = False
-    i = 0  
-    while found_target == False:
+    i = 0
+    iterations = 50
+    while found_target == False and i < iterations:
         for particle in particles:
             found_target = particle.search()
             print(particle)
+            print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
         #Particle.decrement_weight()
         i += 1
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
