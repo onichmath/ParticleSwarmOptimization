@@ -151,7 +151,7 @@ def setup_plot():
     
 def particle_swarm_optimization():
     Particle.setup(social=1.2, cognitive=1.5, dimensions=2, upper=5.0, lower=-5.0, target=[0,0], error=1e-6)
-    num_particles = 50
+    num_particles = 5
     particles = [Particle()] * num_particles
     found_target = False
     i = 0
@@ -164,10 +164,11 @@ def particle_swarm_optimization():
             found_target = particle.search()
         Particle.decrement_weight()
         i += 1
-        plt.title(f"PSO Iteration {i}")
-        frame = plt.scatter([particles[n].position[0] for n in range(len(particles))],
-                    [particles[n].position[1] for n in range(len(particles))], c='b')
-        artists.append([frame])
+        x_positions = [particles[n].position[0] for n in range(len(particles))]
+        y_positions = [particles[n].position[1] for n in range(len(particles))]
+        frame = plt.scatter(x_positions, y_positions, c='b')
+        title = plt.text(-0.5, 5.5, f"PSO Iteration {i}")
+        artists.append([frame, title])
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
     anim = animation.ArtistAnimation(fig, artists)
     plt.show()
