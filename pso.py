@@ -144,8 +144,9 @@ def setup_plot():
     plt.imshow(z, extent=[l, u, l, u], origin='lower', cmap='viridis', alpha=0.5)
     plt.colorbar()
     plt.plot([x_min], [y_min], marker='x', markersize=5, color="white")
-    contours = plt.contour(x, y, z, 5, colors='black', alpha=0.4)
+    contours = plt.contour(x, y, z, 10, colors='black', alpha=0.4)
     plt.clabel(contours, inline=True, fontsize=8, fmt="%.0f")
+    plt.title("Particle Swarm Optimization")
     return fig
     
     
@@ -157,20 +158,17 @@ def particle_swarm_optimization():
     i = 0
     iterations = 50
     fig = setup_plot()
-    artists = []
+    plt.ion()
 
     while found_target == False and i < iterations:
         for particle in particles:
             found_target = particle.search()
         Particle.decrement_weight()
         i += 1
-        frame = plt.scatter([particles[n].position[0] for n in range(len(particles))],
-                    [particles[n].position[1] for n in range(len(particles))])
-        artists.append(frame)
+        plt.scatter([particles[n].position[0] for n in range(len(particles))],
+                    [particles[n].position[1] for n in range(len(particles))], c='b')
 
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
-    ani = animation.ArtistAnimation(fig, artists, interval=400)
-    plt.show()
 
 
 def main():
