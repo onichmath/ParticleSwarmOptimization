@@ -153,7 +153,6 @@ def setup_plot(type3d:bool=True):
         contours = plt.contour(x, y, z, 10, colors='black', alpha=0.4)
         plt.clabel(contours, inline=True, fontsize=8, fmt="%.0f")
         return fig
-zip() 
     
 def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weight=True, n_particles=5, iterations=50, type3d:bool=True):
     # Swarm Setup
@@ -175,6 +174,7 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weigh
         if dec_weight == True:
             Particle.decrement_weight
         i += 1
+
         # Matplotlib frames for animation
         x_positions = [particles[n].position[0] for n in range(n_particles)]
         y_positions = [particles[n].position[1] for n in range(n_particles)]
