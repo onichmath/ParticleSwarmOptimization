@@ -17,6 +17,14 @@ class Particle():
     lower_bound = -5
 
     @classmethod
+    def within_target_error(cls, target:list, error) -> bool:
+        """Returns true if gbest_pos is within the designated target error"""
+        for d in range(cls.dimensions):
+            if cls.gbest_pos[d] > target[d] + error:
+                return False
+        return True
+
+    @classmethod
     def reset_dimensions(cls, dimensions):
         """Reset the dimensions and gbest_pos"""
         cls.dimensions = dimensions
@@ -45,8 +53,9 @@ class Particle():
         """Ackley"""
         x = position[0]
         y = position[1]
-        return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
-          np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
+        return x**2 + y**2
+        # return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
+        #   np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
 
     def __init__(self) -> None:
         # Set position. Makes vector with dimensions Particle.dimensions
@@ -118,12 +127,13 @@ class Particle():
             self.update_gbest_pos()
 
 def particle_swarm_optimization():
-    num_particles = 50
+    Particle.set_coefficients(social=2, cognitive=1.2)
+    Particle.set_bounds(lower=-1,upper=1)
+    num_particles = 500
     particles = [Particle()] * num_particles
     i = 500
     while i > 0:
         for particle in particles:
-            print(particle)
             particle.search()
         Particle.decrement_weight()
         i -= 1
