@@ -167,7 +167,7 @@ def particle_swarm_optimization():
         x_positions = [particles[n].position[0] for n in range(len(particles))]
         y_positions = [particles[n].position[1] for n in range(len(particles))]
         frame = plt.scatter(x_positions, y_positions, c='b')
-        title = plt.text(-0.5, 5.5, f"PSO Iteration {i}")
+        title = plt.text(-4, 5.5, f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
         artists.append([frame, title])
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
     anim = animation.ArtistAnimation(fig, artists)
