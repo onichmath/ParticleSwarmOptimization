@@ -158,17 +158,19 @@ def particle_swarm_optimization():
     i = 0
     iterations = 50
     fig = setup_plot()
-    plt.ion()
+    artist = []
 
     while found_target == False and i < iterations:
         for particle in particles:
             found_target = particle.search()
         Particle.decrement_weight()
         i += 1
-        plt.scatter([particles[n].position[0] for n in range(len(particles))],
+        frame = plt.scatter([particles[n].position[0] for n in range(len(particles))],
                     [particles[n].position[1] for n in range(len(particles))], c='b')
+        artist.append(frame)
 
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
+    ani = animation.ArtistAnimation(fig, artist)
 
 
 def main():
