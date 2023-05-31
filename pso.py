@@ -54,10 +54,12 @@ class Particle():
         """Set the particle's position based on current position and velocity"""
         self.position = self.position + self.velocity
 
-    def update_pbest_pos(self) -> None:
+    def update_pbest_pos(self) -> bool:
         """Update particle's best known pos with its current position, if its better. Returns True/false if updated/not."""
         if self.fitness(self.position) < self.fitness(self.pbest_pos):
             self.pbest_pos = self.position
+            return True
+        return False
 
     def update_gbest_pos(self) -> None:
         """Updates gbest based on particle index"""
@@ -160,8 +162,8 @@ def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5,
     end = perf_counter()
 
     print(f"Gbestpos is: {Particle.gbest_pos}. {i} iterations. {(end - start) * 1000} Milliseconds")
-    anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
-    plt.show()
+    # anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
+    # plt.show()
 
 
 @classmethod
@@ -180,7 +182,7 @@ def paraboloid(cls, position):
     return x**2 + y**2
 
 def main():
-    particle_swarm_optimization(obj_func=paraboloid, type3d=False, social=2.5, cognitive=1.5, weight=1.2, n_particles=500, dec_weight=True, iterations=500)
+    particle_swarm_optimization(obj_func=paraboloid, type3d=False, social=2.5, cognitive=1.5, weight=0.8, n_particles=500, dec_weight=True, iterations=500)
 
 if __name__ == "__main__":
     main()
