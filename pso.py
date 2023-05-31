@@ -34,16 +34,13 @@ class Particle():
             return True
         return False
 
-        #     if cls.gbest_pos[0] > cls.target[0] - cls.error:
-        #         if cls.gbest_pos[1] < cls.target[1] + cls.error:
-        #             if cls.gbest_pos[1] > cls.target[1] - cls.error:
-        #                 return True
-        # return False 
-        #
     @classmethod
-    def dist_target(cls):
+    def dist_target(cls) -> list:
         """Returns the distance from the target in each dimension"""
         dist = [None,None]
+        dist[0] = np.abs(cls.gbest_pos[0]) - np.abs(cls.target[0] + cls.error)
+        dist[1] = np.abs(cls.gbest_pos[1]) - np.abs(cls.target[1] + cls.error)
+        return dist
 
     def __init__(self) -> None:
         # Set position. Makes vector with dimensions Particle.dimensions
@@ -178,7 +175,7 @@ def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5,
         if type3d:
             fitness_vals = [Particle.fitness([particles[i].position[0], particles[i].position[1]]) for i,part in enumerate(particles)]
             frame = ax.scatter(xs=x_positions,ys=y_positions, zs=fitness_vals, c='b', marker='$P$')
-            title = plt.figtext(x=0, y=0.9, s=f"Iteration {i}\nGbest {Particle.gbest_pos}\nTarget {Particle.target} Error {Particle.error}\n{(perf_counter() - start) * 1000}ms")
+            title = plt.figtext(x=0, y=0.9, s=f"Iteration: {i}\nGbest: {Particle.gbest_pos}\nTarget: {Particle.target} Error: {Particle.error}\nDistance to target error: {Particle.dist_target()}\n{(perf_counter() - start) * 1000}ms")
         else:
             frame = plt.scatter(x_positions, y_positions, c='b', marker='$P$')
             title = plt.text(x=-4, y=5.5, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
