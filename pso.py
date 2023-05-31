@@ -90,7 +90,7 @@ class Particle():
 
     def update_velocity(self) -> None: 
         """Update the particle's velocity in each dimension"""
-        for d in range(len(self.position)):
+        for d,pos in enumerate(self.position):
             # Inertia * velocity
             inertial_velocity =  Particle.weight * self.velocity[d]
             # Find distance to personal best pos 
@@ -107,7 +107,7 @@ class Particle():
 
     def enforce_bounds(self) -> None:
         """When the position is outside of bounds, it is set in bounds. When a velocity is outside, it is set to 0"""
-        for d in range(len(self.position)):
+        for d,pos in enumerate(self.position):
             if self.position[d] > Particle.upper_bound:
                 self.position[d] = Particle.upper_bound - (self.position[d] / 1000)
             elif self.position[d] < Particle.lower_bound:
@@ -171,10 +171,10 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, upper=5.0
         i += 1
 
         # Matplotlib frames for animation
-        x_positions = [particles[n].position[0] for n in range(n_particles)]
-        y_positions = [particles[n].position[1] for n in range(n_particles)]
+        x_positions = [particles[i].position[0] for i,part in enumerate(particles)]
+        y_positions = [particles[i].position[1] for i,part in enumerate(particles)]
         if type3d:
-            fitness_vals = [Particle.fitness([particles[n].position[0], particles[n].position[1]]) for n in range(n_particles)]
+            fitness_vals = [Particle.fitness([particles[i].position[0], particles[i].position[1]]) for i,part in enumerate(particles)]
             frame = ax.scatter(xs=x_positions,ys=y_positions, zs=fitness_vals, c='b', marker='$P$')
             title = ax.text(x=-4, y=-16, z=35, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
         else:
