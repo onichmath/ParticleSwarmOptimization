@@ -234,8 +234,8 @@ def d_wise_particle_swarm_optimization(obj_func, social:float=1.5, cognitive:flo
     end = perf_counter()
 
     print(f"Gbestpos is: {Particle.gbest_pos}. {i} iterations. {(end - start) * 1000} Milliseconds")
-    # anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
-    # plt.show()
+    anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
+    plt.show()
 
 @classmethod
 def Ackleys(cls, position):
