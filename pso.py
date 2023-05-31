@@ -29,7 +29,7 @@ class Particle():
             cls.weight = cls.weight - 0.01
 
     @classmethod
-    def setup(cls, weight:float=1.0, social:float=1.5, cognitive:float=1.5, dimensions:int=2, upper:float=5.0, lower:float=-5.0, target:list=[0,0], error:float=1e-6) -> None:
+    def setup(cls, obj_func, weight:float=1.0, social:float=1.5, cognitive:float=1.5, dimensions:int=2, upper:float=5.0, lower:float=-5.0, target:list=[0,0], error:float=1e-6) -> None:
         """Setup the swarm space"""
         cls.weight = weight
         cls.social_coefficient = social
@@ -40,6 +40,7 @@ class Particle():
         cls.lower_bound = lower
         cls.target = target
         cls.error = error
+        cls.fitness = obj_func
         assert len(cls.gbest_pos) == cls.dimensions
 
     @classmethod
@@ -52,14 +53,14 @@ class Particle():
                         return True
         return False 
 
-    @classmethod
-    def fitness(cls, position):
-        """Ackley's function from wikipedia"""
-        x = position[0]
-        y = position[1]
-        # return x**2 + y**2
-        return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
-          np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
+    # @classmethod
+    # def fitness(cls, position):
+    #     """Ackley's function from wikipedia"""
+    #     x = position[0]
+    #     y = position[1]
+    #     # return x**2 + y**2
+    #     return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
+    #       np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
 
     def __init__(self) -> None:
         # Set position. Makes vector with dimensions Particle.dimensions
@@ -152,7 +153,7 @@ def setup_plot(type3d:bool=True):
     
 def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5, weight:float=1.0, upper:float=5.0, lower:float=-5.0, dec_weight:int=True, n_particles:int=5, iterations:int=50, type3d:bool=True, dimensions:int=2, target:list=[0,0], error:float=1e-6):
     # Swarm Setup
-    Particle.setup(social=social, cognitive=cognitive, weight=weight, dimensions=dimensions, upper=upper, lower=lower, target=target, error=error)
+    Particle.setup(obj_func=obj_func, social=social, cognitive=cognitive, weight=weight, dimensions=dimensions, upper=upper, lower=lower, target=target, error=error)
     particles = [Particle() for n in range(n_particles)]
     # Matplotlib setup call
     if type3d:
@@ -188,9 +189,16 @@ def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5,
     plt.show()
 
 
+def AckleysFunction(position):
+    """Ackley's function from wikipedia"""
+    x = position[0]
+    y = position[1]
+    return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
+      np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
+
 
 def main():
-    particle_swarm_optimization(type3d=True, social=1.5, cognitive=1.5, weight=0.8, n_particles=50, dec_weight=False, iterations=50)
+    particle_swarm_optimization(obj_func=AckleysFunction, type3d=True, social=1.5, cognitive=1.5, weight=0.8, n_particles=50, dec_weight=False, iterations=50)
 
 if __name__ == "__main__":
     main()
