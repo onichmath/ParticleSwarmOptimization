@@ -176,22 +176,22 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, upper=5.0
         if type3d:
             fitness_vals = [Particle.fitness([particles[n].position[0], particles[n].position[1]]) for n in range(n_particles)]
             frame = ax.scatter(xs=x_positions,ys=y_positions, zs=fitness_vals, c='b', marker='$P$')
-            title = ax.text(x=-4, y=4, z=20, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
+            title = ax.text(x=-4, y=-16, z=35, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
         else:
-            frame = plt.scatter(x_positions, y_positions, c='b')
-            title = plt.text(x=-4, y=5.5, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
+            frame = plt.scatter(x_positions, y_positions, c='b', marker='$P$')
+            title = plt.text(x=-4, y=5.5, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
         artists.append([frame, title])
     end = perf_counter()
 
     print(f"Gbestpos is: {Particle.gbest_pos}. {i} iterations. {(end - start) * 1000} Milliseconds")
-    # anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
-    # plt.show()
-
+    anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
+    plt.show()
+    # anim.save('./pso.gif', writer='pillow')
 
 
 
 def main():
-    particle_swarm_optimization(type3d=True, social=1.5, cognitive=1.5, weight=0.8, n_particles=50, dec_weight=False, iterations=500)
+    particle_swarm_optimization(type3d=True, social=1.5, cognitive=1.5, weight=0.8, n_particles=50, dec_weight=False, iterations=50)
 
 if __name__ == "__main__":
     main()
