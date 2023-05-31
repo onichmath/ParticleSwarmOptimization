@@ -38,9 +38,9 @@ class Particle():
     @classmethod
     def dist_target(cls) -> list:
         """Returns the distance from the target in each dimension"""
-        dist = [None,None]
-        dist[0] = np.abs(cls.gbest_pos[0]) - np.abs(cls.target[0] + cls.error)
-        dist[1] = np.abs(cls.gbest_pos[1]) - np.abs(cls.target[1] + cls.error)
+        dist = [None for d in range(Particle.dimensions)]
+        for d in range(Particle.dimensions):
+            dist[d] = np.abs(cls.gbest_pos[d]) - np.abs(cls.target[d] + cls.error)
         return dist
 
     def __init__(self) -> None:
