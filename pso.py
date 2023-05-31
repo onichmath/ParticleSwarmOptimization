@@ -140,9 +140,9 @@ def setup_plot(type3d:bool=True):
     y_min = y.ravel()[z.argmin()]
     fig =plt.figure(figsize=(8,6))
     if type3d:
-        ax = fig.add_subplot(111, projection='3d')
+        ax = fig.add_subplot(111, projection="3d")
         ax.plot([x_min], [y_min], marker='x', markersize=5, color="white")
-        ax.plot_wireframe(x,y,z, color='red', rcount=100, ccount=100, linewidth=0.2)
+        ax.plot_wireframe(x,y,z, color='red', rcount=500, ccount=500, linewidth=0.4, alpha=0.4)
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.set_zlabel('z')
@@ -154,10 +154,10 @@ def setup_plot(type3d:bool=True):
         plt.clabel(contours, inline=True, fontsize=8, fmt="%.0f")
         return fig
     
-def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weight=True, n_particles=5, iterations=50, type3d:bool=True):
+def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, upper=5.0, lower=-5.0, dec_weight=True, n_particles=5, iterations=50, type3d:bool=True):
     # Swarm Setup
-    Particle.setup(social=social, cognitive=cognitive, weight=weight, dimensions=2, upper=5.0, lower=-5.0, target=[0,0], error=1e-6)
-    particles = [Particle()] * n_particles
+    Particle.setup(social=social, cognitive=cognitive, weight=weight, dimensions=2, upper=upper, lower=lower, target=[0,0], error=1e-6)
+    particles = [Particle() for n in range(n_particles)]
     found_target = False
     # Matplotlib setup call
     if type3d:
@@ -165,7 +165,6 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weigh
     else:
         fig = setup_plot(type3d=False)
     artists = []
-    plt.ioff()
 
     i = 0
     while found_target == False and i < iterations:
@@ -180,7 +179,7 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weigh
         y_positions = [particles[n].position[1] for n in range(n_particles)]
         if type3d:
             fitness_vals = [Particle.fitness([particles[n].position[0], particles[n].position[1]]) for n in range(n_particles)]
-            frame = ax.scatter3D(x_positions,y_positions, fitness_vals, c='b')
+            frame = ax.scatter(xs=x_positions,ys=y_positions, zs=fitness_vals, c='b', marker='$P$')
             title = ax.text(x=-4, y=4, z=20, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
         else:
             frame = plt.scatter(x_positions, y_positions, c='b')
@@ -188,13 +187,14 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, dec_weigh
         artists.append([frame, title])
 
     print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
-    anim = animation.ArtistAnimation(fig, artists)
+    anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
     plt.show()
 
 
 
+
 def main():
-    particle_swarm_optimization()
+    particle_swarm_optimization(type3d=True, social=2.5, cognitive=0.5, weight=0.8, n_particles=50, dec_weight=True, iterations=500)
 
 if __name__ == "__main__":
     main()
