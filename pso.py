@@ -31,7 +31,8 @@ class Particle():
     def within_target_error(cls) -> bool:
         """Returns true if gbest_pos is within the designated target error"""
         if np.abs(cls.gbest_pos[0]) < np.abs(cls.target[0] + cls.error):
-            return True
+            if np.abs(cls.gbest_pos[1]) < np.abs(cls.target[1] + cls.error):
+                return True
         return False
 
     @classmethod
