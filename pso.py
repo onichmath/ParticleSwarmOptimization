@@ -128,7 +128,21 @@ def setup_plot(type3d:bool=True):
         contours = plt.contour(x, y, z, 10, colors='black', alpha=0.4)
         plt.clabel(contours, inline=True, fontsize=8, fmt="%.0f")
         return fig
-    
+
+def visualize_function(obj_func, l, u) -> None:
+    x, y = np.array(np.meshgrid(np.linspace(l,u,100), np.linspace(l,u,100)))
+    z = obj_func(None, [x, y])
+    x_min = x.ravel()[z.argmin()]
+    y_min = y.ravel()[z.argmin()]
+    fig =plt.figure(figsize=(8,6))
+    ax = fig.add_subplot(111, projection="3d")
+    ax.plot([x_min], [y_min], marker='x', markersize=5, color="white")
+    ax.plot_wireframe(x,y,z, color='red', rcount=500, ccount=500, linewidth=0.4, alpha=0.4)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    plt.show()
+
 # -------------------------------------------------------------
 def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5, weight:float=1.0, upper:float=5.0, lower:float=-5.0, dec_weight:int=True, n_particles:int=5, iterations:int=50, type3d:bool=True, dimensions:int=2, target:list=[0,0], error:float=1e-6):
     # Swarm Setup
@@ -151,16 +165,16 @@ def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5,
         i += 1
 
         # Matplotlib frames for animation
-        x_positions = [particles[i].position[0] for i,part in enumerate(particles)]
-        y_positions = [particles[i].position[1] for i,part in enumerate(particles)]
-        if type3d:
-            fitness_vals = [Particle.fitness([particles[i].position[0], particles[i].position[1]]) for i,part in enumerate(particles)]
-            frame = ax.scatter(xs=x_positions,ys=y_positions, zs=fitness_vals, c='b', marker='$P$')
-            title = ax.text(x=-4, y=-16, z=35, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
-        else:
-            frame = plt.scatter(x_positions, y_positions, c='b', marker='$P$')
-            title = plt.text(x=-4, y=5.5, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
-        artists.append([frame, title])
+        # x_positions = [particles[i].position[0] for i,part in enumerate(particles)]
+        # y_positions = [particles[i].position[1] for i,part in enumerate(particles)]
+        # if type3d:
+        #     fitness_vals = [Particle.fitness([particles[i].position[0], particles[i].position[1]]) for i,part in enumerate(particles)]
+        #     frame = ax.scatter(xs=x_positions,ys=y_positions, zs=fitness_vals, c='b', marker='$P$')
+        #     title = ax.text(x=-4, y=-16, z=35, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
+        # else:
+        #     frame = plt.scatter(x_positions, y_positions, c='b', marker='$P$')
+        #     title = plt.text(x=-4, y=5.5, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
+        # artists.append([frame, title])
     end = perf_counter()
 
     print(f"Gbestpos is: {Particle.gbest_pos}. {i} iterations. {(end - start) * 1000} Milliseconds")
@@ -168,15 +182,13 @@ def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5,
     # plt.show()
 
 # ----------------------------------------------------------
-@classmethod
 def Ackleys(cls, position):
-    """Ackley's function from wikipedia"""
+    """Ackley's function from wikipedia."""
     x = position[0]
     y = position[1]
     return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
       np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
 
-@classmethod
 def paraboloid(cls, position):
     """Ackley's function from wikipedia"""
     x = position[0]
@@ -186,7 +198,9 @@ def paraboloid(cls, position):
 # --------------------------------------------------------------
 
 def main():
-    particle_swarm_optimization(obj_func=paraboloid, type3d=False, social=2.5, cognitive=1.5, weight=0.8, n_particles=500, dec_weight=True, iterations=500)
+    # particle_swarm_optimization(obj_func=classmethod(Ackleys), type3d=False, social=1.5, cognitive=1.5, weight=1.0, n_particles=500, dec_weight=False, iterations=500)
+    # particle_swarm_optimization(obj_func=classmethod(Ackleys), type3d=False, social=1.5, cognitive=1.5, weight=0.8, n_particles=500, dec_weight=True, iterations=500)
+    visualize_function(Ackleys, l=-5.0, u=5.0)
 
 if __name__ == "__main__":
     main()
