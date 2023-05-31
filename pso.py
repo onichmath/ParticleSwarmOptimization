@@ -5,22 +5,12 @@ from time import perf_counter
 
 class Particle():
     """Represents a particle"""
-    dimensions = 2
     # Inertial weight
-    weight = 1 
     # Social and cognitive coefficients.
     # Cognitive makes a particle care more about its own findings
     # Social makes a particle care more about the swarm's findings
-    social_coefficient = 1.5 
-    cognitive_coefficient = 1.5
     # Upper and lower bounds of the problem
-    upper_bound = 5
-    lower_bound = -5
     # Swarm's best known position
-    gbest_pos = [upper_bound] * dimensions
-    # Target minimum values
-    target = [0,0]
-    error = 1e-6
 
     @classmethod
     def decrement_weight(cls):
