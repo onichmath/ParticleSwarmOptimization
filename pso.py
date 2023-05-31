@@ -150,9 +150,9 @@ def setup_plot(type3d:bool=True):
         plt.clabel(contours, inline=True, fontsize=8, fmt="%.0f")
         return fig
     
-def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, upper=5.0, lower=-5.0, dec_weight=True, n_particles=5, iterations=50, type3d:bool=True):
+def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5, weight:float=1.0, upper:float=5.0, lower:float=-5.0, dec_weight:int=True, n_particles:int=5, iterations:int=50, type3d:bool=True, dimensions:int=2, target:list=[0,0], error:float=1e-6):
     # Swarm Setup
-    Particle.setup(social=social, cognitive=cognitive, weight=weight, dimensions=2, upper=upper, lower=lower, target=[0,0], error=1e-6)
+    Particle.setup(social=social, cognitive=cognitive, weight=weight, dimensions=dimensions, upper=upper, lower=lower, target=target, error=error)
     particles = [Particle() for n in range(n_particles)]
     # Matplotlib setup call
     if type3d:
@@ -186,7 +186,6 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, upper=5.0
     print(f"Gbestpos is: {Particle.gbest_pos}. {i} iterations. {(end - start) * 1000} Milliseconds")
     anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
     plt.show()
-    # anim.save('./pso.gif', writer='pillow')
 
 
 
