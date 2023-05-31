@@ -5,12 +5,6 @@ from time import perf_counter
 
 class Particle():
     """Represents a particle"""
-    # Inertial weight
-    # Social and cognitive coefficients.
-    # Cognitive makes a particle care more about its own findings
-    # Social makes a particle care more about the swarm's findings
-    # Upper and lower bounds of the problem
-    # Swarm's best known position
 
     @classmethod
     def decrement_weight(cls):
