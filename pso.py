@@ -53,15 +53,6 @@ class Particle():
                         return True
         return False 
 
-    # @classmethod
-    # def fitness(cls, position):
-    #     """Ackley's function from wikipedia"""
-    #     x = position[0]
-    #     y = position[1]
-    #     # return x**2 + y**2
-    #     return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
-    #       np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
-
     def __init__(self) -> None:
         # Set position. Makes vector with dimensions Particle.dimensions
         self.position = np.random.uniform(low=Particle.lower_bound, high=Particle.upper_bound, size=Particle.dimensions)
@@ -188,17 +179,23 @@ def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5,
     anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
     plt.show()
 
-
-def AckleysFunction(position):
+@classmethod
+def Ackleys(cls, position):
     """Ackley's function from wikipedia"""
     x = position[0]
     y = position[1]
     return -20.0 * np.exp(-0.2 * np.sqrt(0.5 * (x**2 + y**2))) - np.exp(0.5 * (np.cos(2 * 
       np.pi * x)+np.cos(2 * np.pi * y))) + np.e + 20
 
+@classmethod
+def paraboloid(cls, position):
+    """Ackley's function from wikipedia"""
+    x = position[0]
+    y = position[1]
+    return x**2 + y**2
 
 def main():
-    particle_swarm_optimization(obj_func=AckleysFunction, type3d=True, social=1.5, cognitive=1.5, weight=0.8, n_particles=50, dec_weight=False, iterations=50)
+    particle_swarm_optimization(obj_func=Ackleys, type3d=True, social=1.5, cognitive=1.5, weight=0.8, n_particles=50, dec_weight=False, iterations=50)
 
 if __name__ == "__main__":
     main()
