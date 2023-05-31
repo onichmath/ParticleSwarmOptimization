@@ -19,7 +19,7 @@ class Particle():
         cls.social_coefficient = social
         cls.cognitive_coefficient = cognitive
         cls.dimensions = dimensions
-        cls.gbest_pos = [upper] * dimensions
+        cls.gbest_pos = [upper for d in range(dimensions)]
         cls.upper_bound = upper
         cls.lower_bound = lower
         cls.target = target
@@ -48,7 +48,7 @@ class Particle():
 
     def __str__(self) -> str:
         """Returns the position and velocity of the particle"""
-        return f"My current position is: {self.position}. My pbest is: {self.pbest_pos}. My velocity is: {self.velocity}."
+        return f"{hex(id(self))} current position is: {self.position}. My pbest is: {self.pbest_pos}. My velocity is: {self.velocity}."
 
     def update_position(self) -> None:
         """Set the particle's position based on current position and velocity"""
@@ -89,9 +89,9 @@ class Particle():
             elif self.position[d] < Particle.lower_bound:
                 self.position[d] = Particle.lower_bound - (self.position[d] / 1000)
             if self.velocity[d] > Particle.upper_bound:
-                self.velocity[d] = 0 
+                self.velocity[d] = -0.1
             elif self.velocity[d] < Particle.lower_bound:
-                self.velocity[d] = 0 
+                self.velocity[d] = 0.1
 
     def search(self) -> None:
         """A single particle's search for minimum"""
@@ -100,42 +100,6 @@ class Particle():
         self.enforce_bounds()
         if self.update_pbest_pos():
             self.update_gbest_pos()
-    
-    """Below are the d_wise methods"""
-    def d_wise_update_velocity(self, d) -> None: 
-        """Update the particle's velocity in each dimension"""
-        # Inertia * velocity
-        inertial_velocity =  Particle.weight * self.velocity[d]
-        # Find distance to personal best pos 
-        dist_pbest = self.pbest_pos[d] - self.position[d]
-        # Find distance to global best pos
-        dist_gbest = Particle.gbest_pos[d] - self.position[d]
-        # Set cognitive constant
-        p_const = Particle.cognitive_coefficient * np.random.uniform(low=0, high=1)
-        # Set the social constant
-        g_const = Particle.social_coefficient * np.random.uniform(low=0, high=1)
-        # Set velocity in given dimension
-        final_velocity = inertial_velocity + p_const * dist_pbest + g_const * dist_gbest 
-        self.velocity[d] = final_velocity
-
-    def d_wise_enforce_bounds(self, d) -> None:
-        """When the position is outside of bounds, it is set in bounds. When a velocity is outside, it is set to 0"""
-        if self.position[d] > Particle.upper_bound:
-            self.position[d] = Particle.upper_bound - (self.position[d] / 1000)
-        elif self.position[d] < Particle.lower_bound:
-            self.position[d] = Particle.lower_bound - (self.position[d] / 1000)
-        if self.velocity[d] > Particle.upper_bound:
-            self.velocity[d] = 0 
-        elif self.velocity[d] < Particle.lower_bound:
-            self.velocity[d] = 0 
-
-    def d_wise_search(self, d) -> None:
-        self.d_wise_update_velocity(d)
-        self.update_position()
-        self.d_wise_enforce_bounds(d)
-        if self.update_pbest_pos():
-            self.update_gbest_pos()
-
 
 def setup_plot(type3d:bool=True):
     """Based off of https://machinelearningmastery.com/a-gentle-introduction-to-particle-swarm-optimization/
@@ -196,46 +160,9 @@ def particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5,
     end = perf_counter()
 
     print(f"Gbestpos is: {Particle.gbest_pos}. {i} iterations. {(end - start) * 1000} Milliseconds")
-    # anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
-    # plt.show()
-
-def d_wise_particle_swarm_optimization(obj_func, social:float=1.5, cognitive:float=1.5, weight:float=1.0, upper:float=5.0, lower:float=-5.0, dec_weight:int=True, n_particles:int=5, iterations:int=50, type3d:bool=True, dimensions:int=2, target:list=[0,0], error:float=1e-6):
-    # Swarm Setup
-    Particle.setup(obj_func=obj_func, social=social, cognitive=cognitive, weight=weight, dimensions=dimensions, upper=upper, lower=lower, target=target, error=error)
-    particles = [Particle() for n in range(n_particles)]
-    # Matplotlib setup call
-    if type3d:
-        fig, ax = setup_plot(type3d=True)
-    else:
-        fig = setup_plot(type3d=False)
-    artists = []
-
-    i = 0
-    start = perf_counter()
-    while i < iterations:
-        for d in range(dimensions):
-            for particle in particles:
-                particle.d_wise_search(d)
-        if dec_weight == True:
-            Particle.decrement_weight
-        i += 1
-
-        # Matplotlib frames for animation
-        x_positions = [particles[i].position[0] for i,part in enumerate(particles)]
-        y_positions = [particles[i].position[1] for i,part in enumerate(particles)]
-        if type3d:
-            fitness_vals = [Particle.fitness([particles[i].position[0], particles[i].position[1]]) for i,part in enumerate(particles)]
-            frame = ax.scatter(xs=x_positions,ys=y_positions, zs=fitness_vals, c='b', marker='$P$')
-            title = ax.text(x=-4, y=-16, z=35, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
-        else:
-            frame = plt.scatter(x_positions, y_positions, c='b', marker='$P$')
-            title = plt.text(x=-4, y=5.5, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}, {(perf_counter() - start) * 1000} Milliseconds")
-        artists.append([frame, title])
-    end = perf_counter()
-
-    print(f"Gbestpos is: {Particle.gbest_pos}. {i} iterations. {(end - start) * 1000} Milliseconds")
     anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
     plt.show()
+
 
 @classmethod
 def Ackleys(cls, position):
@@ -253,8 +180,7 @@ def paraboloid(cls, position):
     return x**2 + y**2
 
 def main():
-    particle_swarm_optimization(obj_func=Ackleys, type3d=True, social=1.5, cognitive=1.5, weight=0.8, n_particles=50, dec_weight=False, iterations=50)
-    d_wise_particle_swarm_optimization(obj_func=Ackleys, type3d=True, social=1.5, cognitive=1.5, weight=0.8, n_particles=50, dec_weight=False, iterations=50)
+    particle_swarm_optimization(obj_func=paraboloid, type3d=False, social=2.5, cognitive=1.5, weight=1.2, n_particles=500, dec_weight=True, iterations=500)
 
 if __name__ == "__main__":
     main()
