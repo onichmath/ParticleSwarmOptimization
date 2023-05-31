@@ -1,6 +1,7 @@
 import numpy as np 
 from matplotlib import pyplot as plt
 from matplotlib import animation
+from time import perf_counter
 
 class Particle():
     """Represents a particle"""
@@ -44,10 +45,11 @@ class Particle():
     @classmethod
     def within_target_error(cls) -> bool:
         """Returns true if gbest_pos is within the designated target error"""
-        for d in range(cls.dimensions):
-            if cls.gbest_pos[d] < cls.target[d] + cls.error:
-                if cls.gbest_pos[d] > cls.target[d] - cls.error:
-                    return True 
+        if cls.gbest_pos[0] < cls.target[0] + cls.error:
+            if cls.gbest_pos[0] > cls.target[0] - cls.error:
+                if cls.gbest_pos[1] < cls.target[1] + cls.error:
+                    if cls.gbest_pos[1] > cls.target[1] - cls.error:
+                        return True
         return False 
 
     @classmethod
@@ -76,19 +78,15 @@ class Particle():
         """Set the particle's position based on current position and velocity"""
         self.position = self.position + self.velocity
 
-    def update_pbest_pos(self) -> bool:
+    def update_pbest_pos(self) -> None:
         """Update particle's best known pos with its current position, if its better. Returns True/false if updated/not."""
         if self.fitness(self.position) < self.fitness(self.pbest_pos):
             self.pbest_pos = self.position
-            return True
-        return False
 
-    def update_gbest_pos(self) -> bool:
+    def update_gbest_pos(self) -> None:
         """Updates gbest based on particle index"""
         if self.fitness(self.pbest_pos) < self.fitness(Particle.gbest_pos):
             Particle.gbest_pos = self.pbest_pos 
-            return True
-        return False
 
     def update_velocity(self) -> None: 
         """Update the particle's velocity in each dimension"""
@@ -119,15 +117,13 @@ class Particle():
             elif self.velocity[d] < Particle.lower_bound:
                 self.velocity[d] = 0 
 
-    def search(self) -> bool:
+    def search(self) -> None:
         """A single particle's search for minimum"""
         self.update_velocity()
         self.update_position()
         self.enforce_bounds()
         if self.update_pbest_pos():
-            if self.update_gbest_pos():
-                return Particle.within_target_error()
-        return False
+            self.update_gbest_pos()
 
 def setup_plot(type3d:bool=True):
     """Based off of https://machinelearningmastery.com/a-gentle-introduction-to-particle-swarm-optimization/
@@ -158,7 +154,6 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, upper=5.0
     # Swarm Setup
     Particle.setup(social=social, cognitive=cognitive, weight=weight, dimensions=2, upper=upper, lower=lower, target=[0,0], error=1e-6)
     particles = [Particle() for n in range(n_particles)]
-    found_target = False
     # Matplotlib setup call
     if type3d:
         fig, ax = setup_plot(type3d=True)
@@ -167,9 +162,10 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, upper=5.0
     artists = []
 
     i = 0
-    while found_target == False and i < iterations:
+    start = perf_counter()
+    while i < iterations:
         for particle in particles:
-            found_target = particle.search()
+            particle.search()
         if dec_weight == True:
             Particle.decrement_weight
         i += 1
@@ -185,16 +181,17 @@ def particle_swarm_optimization(social=1.5, cognitive=1.5, weight=1.0, upper=5.0
             frame = plt.scatter(x_positions, y_positions, c='b')
             title = plt.text(x=-4, y=5.5, s=f"PSO Iteration {i}, Current Gbest is {Particle.gbest_pos}")
         artists.append([frame, title])
+    end = perf_counter()
 
-    print(f"Gbestpos is: {Particle.gbest_pos}, in {i} iterations")
-    anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
-    plt.show()
+    print(f"Gbestpos is: {Particle.gbest_pos}. {i} iterations. {(end - start) * 1000} Milliseconds")
+    # anim = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
+    # plt.show()
 
 
 
 
 def main():
-    particle_swarm_optimization(type3d=True, social=2.5, cognitive=0.5, weight=0.8, n_particles=50, dec_weight=True, iterations=500)
+    particle_swarm_optimization(type3d=True, social=1.5, cognitive=1.5, weight=0.8, n_particles=50, dec_weight=False, iterations=500)
 
 if __name__ == "__main__":
     main()
